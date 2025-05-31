@@ -209,6 +209,4 @@ instagram_analyzer/
 *   Despliegue de la aplicación en una plataforma en la nube.
 
 ## ⚖️ Licencia
-
 Este proyecto se distribuye bajo una licencia educativa/académica con fines de aprendizaje y demostración.
-```
