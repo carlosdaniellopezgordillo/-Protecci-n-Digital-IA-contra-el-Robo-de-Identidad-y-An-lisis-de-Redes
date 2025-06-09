@@ -1473,7 +1473,7 @@ def main_app():
                 
                 # Gráfico de predicciones
                 fig_pred = go.Figure()
-                fig_pred.add_trace(go.Scatter(x=historical_seguidores_full_i.index, y=historical_seguidores_full_i.values, mode='lines', name='Histórico', line=dict(color=INSTA_GRAPH_LINE_SECONDARY)))
+                fig_pred.add_trace(go.Scatter(x=historical_seguidores_full_i.index, y=historical_seguidores_full_i.values, mode='lines', name='Histórico', line=dict(color=INSTA_GRAPH_LINE_PRIMARY)))
                 fig_pred.add_trace(go.Scatter(x=predictions_table_data_i.index, y=predictions_table_data_i.values, mode='lines+markers', name='Predicción', line=dict(color=INSTA_GRAPH_LINE_PRIMARY, dash='dash')))
                 fig_pred.update_layout(
                     title_text=f"Predicción de Seguidores para @{usuario_insta}",
