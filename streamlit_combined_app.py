@@ -876,10 +876,29 @@ def main_app():
                     es_correcta = respuesta_dada == pregunta_obj["respuesta_correcta"]
                     if es_correcta:
                         num_correctas += 1
-                        st.success(f"**Pregunta:** {pregunta_obj['q']}\n**Tu respuesta:** {respuesta_dada} (¡Correcto! ✅)\n**Explicación:** {pregunta_obj['explicacion']}")
+                        # st.success(f"**Pregunta:** {pregunta_obj['q']}\n**Tu respuesta:** {respuesta_dada} (¡Correcto! ✅)\n**Explicación:** {pregunta_obj['explicacion']}")
+                        st.markdown(
+                            f"""
+                            <div style="background-color: #28a745; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                                <strong>Pregunta:</strong> {pregunta_obj['q']}<br>
+                                <strong>Tu respuesta:</strong> {respuesta_dada} (¡Correcto! ✅)<br>
+                                <strong>Explicación:</strong> {pregunta_obj['explicacion']}
+                            </div>
+                            """, unsafe_allow_html=True
+                        )
                     else:
-                        st.error(f"**Pregunta:** {pregunta_obj['q']}\n**Tu respuesta:** {respuesta_dada} (Incorrecto ❌)\n**Respuesta correcta:** {pregunta_obj['respuesta_correcta']}\n**Explicación:** {pregunta_obj['explicacion']}")
-                st.info(f"Obtuviste {num_correctas} de {len(escenario_actual['preguntas'])} respuestas correctas en este escenario.")
+                        # st.error(f"**Pregunta:** {pregunta_obj['q']}\n**Tu respuesta:** {respuesta_dada} (Incorrecto ❌)\n**Respuesta correcta:** {pregunta_obj['respuesta_correcta']}\n**Explicación:** {pregunta_obj['explicacion']}")
+                        st.markdown(
+                            f"""
+                            <div style="background-color: #dc3545; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                                <strong>Pregunta:</strong> {pregunta_obj['q']}<br>
+                                <strong>Tu respuesta:</strong> {respuesta_dada} (Incorrecto ❌)<br>
+                                <strong>Respuesta correcta:</strong> {pregunta_obj['respuesta_correcta']}<br>
+                                <strong>Explicación:</strong> {pregunta_obj['explicacion']}
+                            </div>
+                            """, unsafe_allow_html=True
+                        )
+                st.info(f"Obtuviste {num_correctas} de {len(escenario_actual['preguntas'])} respuestas correctas en este escenario.") # Mantenemos st.info para el resumen general
 
                 if st.session_state.current_scenario_index < len(escenarios_phishing) - 1:
                     if st.button("Siguiente Escenario ➡️", key=f"next_{escenario_actual['id']}"):
