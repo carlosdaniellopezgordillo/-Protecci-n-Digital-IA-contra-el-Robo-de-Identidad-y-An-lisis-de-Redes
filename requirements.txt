@@ -3,3 +3,4 @@ pandas
 joblib
 plotly
 statsmodels
+xgboost
