@@ -342,13 +342,13 @@ def main_app():
     GRAPH_TEMPLATE = "plotly_white"  # Siempre usar un template claro para las gráficas
     INSTA_GRAPH_BAR_COLOR = ['#1f77b4']  # Azul oscuro para barras (color por defecto de Plotly)
     INSTA_GRAPH_LINE_PRIMARY = '#1f77b4'    # Azul oscuro para líneas primarias
-    INSTA_GRAPH_LINE_SECONDARY = '#7f7f7f'  # Gris oscuro para líneas secundarias
+    INSTA_GRAPH_LINE_SECONDARY = "#ffffff"  # Gris oscuro para líneas secundarias
 
     # Colores para alertas (fondos claros, texto oscuro consistente con COMPONENT_TEXT_COLOR)
-    ALERT_INFO_BG = "#e7f3fe"    # Azul muy claro (Bootstrap info)
-    ALERT_SUCCESS_BG = "#d4edda" # Verde muy claro (Bootstrap success)
-    ALERT_WARNING_BG = "#fff3cd" # Amarillo muy claro (Bootstrap warning)
-    ALERT_ERROR_BG = "#f8d7da"   # Rojo muy claro (Bootstrap error)
+    ALERT_INFO_BG = COMPONENT_BG_COLOR    # Fondo blanco para alerta info
+    ALERT_SUCCESS_BG = COMPONENT_BG_COLOR # Fondo blanco para alerta success
+    ALERT_WARNING_BG = COMPONENT_BG_COLOR # Fondo blanco para alerta warning
+    ALERT_ERROR_BG = COMPONENT_BG_COLOR   # Fondo blanco para alerta error
 
     # Estilos CSS dinámicos para la aplicación general
     st.markdown(
@@ -371,6 +371,30 @@ def main_app():
                 color: {PRIMARY_TEXT_COLOR} !important;
             }}
 
+            /* Text elements inside tab content should use COMPONENT_TEXT_COLOR for better readability on white tab background */
+            div[data-testid="stTabContent"] p,
+            div[data-testid="stTabContent"] li,
+            div[data-testid="stTabContent"] h1,
+            div[data-testid="stTabContent"] h2,
+            div[data-testid="stTabContent"] h3,
+            div[data-testid="stTabContent"] h4,
+            div[data-testid="stTabContent"] h5,
+            div[data-testid="stTabContent"] h6,
+            div[data-testid="stTabContent"] label, /* General labels inside tabs */
+            /* More specific for markdown containers within tabs */
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] p,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] li,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h1,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h2,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h3,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h4,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h5,
+            div[data-testid="stTabContent"] div[data-testid="stMarkdownContainer"] h6,
+            div[data-testid="stTabContent"] div[data-testid="stCaptionContainer"], /* For st.caption inside tabs */
+            div[data-testid="stTabContent"] .stMarkdown /* General stMarkdown class inside tabs */
+            {{
+                color: {COMPONENT_TEXT_COLOR} !important;
+            }}
             /* Inputs, Selects, TextAreas - Fondo y Borde */
             .stTextInput > div > div > input,
             .stTextArea > div > div > textarea,
@@ -946,7 +970,14 @@ def main_app():
                         st.subheader("Resultado del Análisis:")
                         prob_porcentaje = prob * 100
                         if clasificacion == "maliciosa":
-                            st.error(f"**Clasificación:** {clasificacion.capitalize()} (Probabilidad: {prob_porcentaje:.2f}%)")
+                            # st.error(f"**Clasificación:** {clasificacion.capitalize()} (Probabilidad: {prob_porcentaje:.2f}%)")
+                            # Replace st.error with custom HTML
+                            st.markdown(f"""
+                            <div style="background: white; color: black; padding: 12px; border: 1px solid #ccc; border-radius: 4px; margin: 10px 0;">
+                                <strong>Clasificación:</strong> {clasificacion.capitalize()} (Probabilidad: {prob_porcentaje:.2f}%)
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
                             with st.expander("🚨 ¡URL Peligrosa! ¿Qué hacer ahora?", expanded=True):
                                 st.markdown("""
                                 *   **NO hagas clic** en el enlace si aún no lo has hecho.
@@ -955,7 +986,14 @@ def main_app():
                                 *   Puedes **reportar el enlace** a plataformas como [Google Safe Browsing](https://safebrowsing.google.com/safebrowsing/report_phish/) o al servicio donde lo encontraste.
                                 *   Si ya interactuaste con el sitio, **cambia tus contraseñas** inmediatamente, especialmente si usaste alguna en ese sitio. Monitorea tus cuentas por actividad sospechosa.
                                 """)
-                        else: st.success(f"**Clasificación:** {clasificacion.capitalize()} (Probabilidad: {prob_porcentaje:.2f}%)")
+                        else: 
+                            # Replace st.success with custom HTML
+                            st.markdown(f"""
+                            <div style="background: white; color: black; padding: 12px; border: 1px solid #ccc; border-radius: 4px; margin: 10px 0;">
+                                <strong>Clasificación:</strong> {clasificacion.capitalize()} (Probabilidad: {prob_porcentaje:.2f}%)
+                            </div>
+                            """, unsafe_allow_html=True)
+                        
                         st.markdown("**Detalles:**")
                         if explicacion: # Asegurarse de que explicacion no sea None o esté vacía
                             for item in explicacion:
@@ -971,7 +1009,6 @@ def main_app():
                         for item in explicacion: st.warning(item)
                 else:
                     st.warning("Por favor, ingresa una URL.")
-            
             st.markdown("---")
             st.subheader("🔬 Análisis en Lote de URLs")
             urls_batch_input = st.text_area("Ingresa múltiples URLs (una por línea):", height=150, key="urls_batch_area")
