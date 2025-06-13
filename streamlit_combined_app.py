@@ -108,7 +108,32 @@ def extraer_caracteristicas_url(url: str):
         subdominio_raro, acortador, tld_sospechoso # 7, 8, 9
     ]
 
+# Lista blanca de dominios seguros conocidos
+DOMINIOS_CONFIABLES = [
+    "youtube.com", "www.youtube.com", "google.com", "www.google.com",
+    "facebook.com", "www.facebook.com", "instagram.com", "www.instagram.com",
+    "twitter.com", "www.twitter.com", "linkedin.com", "www.linkedin.com",
+    # Agrega más según tu contexto
+]
+
 def analizar_y_registrar_url(url: str, modelo, conn):
+    parsed = urlparse(url)
+    dominio = parsed.netloc.lower()
+    # Verifica si el dominio está en la lista blanca
+    if any(dominio.endswith(dominio_conf) for dominio_conf in DOMINIOS_CONFIABLES):
+        prob_maliciosa = 0.0
+        clasificacion = "segura"
+        explicacion = [{"text": "✅ Dominio reconocido como seguro.", "tooltip": "Este dominio es ampliamente reconocido y confiable."}]
+        # Registrar en historial como segura
+        try:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO historial_urls (url, clasificacion, probabilidad, fecha) VALUES (?, ?, ?, ?)",
+                        (url, clasificacion, float(prob_maliciosa), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            conn.commit()
+        except sqlite3.Error as e:
+            st.error(f"Error al guardar en BD de URLs: {e}")
+        return prob_maliciosa, clasificacion, explicacion
+
     if not url or not (url.startswith("http://") or url.startswith("https://")):
         return None, "URL inválida", ["Por favor, ingresa una URL válida comenzando con http:// o https://."]
     caracteristicas = extraer_caracteristicas_url(url)
@@ -1238,6 +1263,10 @@ def main_app():
                         if date_range_val_insta and len(date_range_val_insta) == 2:
                             start_date_dt_insta = pd.to_datetime(date_range_val_insta[0])
                             end_date_dt_insta = pd.to_datetime(date_range_val_insta[1]).replace(hour=23, minute=59, second=59)
+                            perfil_df_insta_filtered = df_insta[
+                                (df_insta["fecha"] >= start_date_dt_insta) & (df_insta["fecha"] <= end_date_dt_insta)
+                            ]
+        
         # else:
             # Si INSTAGRAM_MODULES_LOADED es False o df_insta está vacío,
             # usuario_insta, perfil_df_insta, y perfil_df_insta_filtered
@@ -1320,7 +1349,7 @@ def main_app():
                         plot_bgcolor='white',
                         font_color=COMPONENT_TEXT_COLOR,
                         legend_font_color=COMPONENT_TEXT_COLOR,
-                        title_font_color=COMPONENT_TEXT_COLOR,
+                        title_font_color=COMPONENT_TEXT_COLOR, # Asegurar color del título
                         hoverlabel=dict(bgcolor="white", font=dict(color=COMPONENT_TEXT_COLOR)),
                         showlegend=True, 
                         hovermode='x unified',
@@ -1533,7 +1562,7 @@ def main_app():
         *   ⚙️ **Configuración de Privacidad al Día:** Echa un vistazo a quién puede ver tus cosas en Instagram. Decide qué compartes públicamente y qué no.
                 
         *   🤫 **Información Sensible, ¡en Privado!** Evita publicar tu dirección completa, teléfono, datos bancarios o documentos personales.
-        *   🔄 **Software Siempre Actualizado:** Mantén tu sistema operativo, navegador y la app de Instagram al día. ¡Las actualizaciones suelen incluir parches de seguridad!
+        *   🔄 **Software Siempre Actualizado:** Mantén tu sistema operativo, navegador y la app de Instagram al día. ¡Las actualizaciones tapan agujeros de seguridad!
         *   📶 **Cuidado con el Wi-Fi Público:** Si te conectas a una red Wi-Fi abierta, evita manejar información delicada. Una VPN puede ser una buena idea.
         *   👀 **Monitorea tu Actividad:** Revisa de vez en cuando quién ha iniciado sesión en tu cuenta (Configuración > Seguridad > Actividad de inicio de sesión) y los correos de seguridad de Instagram.
         """)
