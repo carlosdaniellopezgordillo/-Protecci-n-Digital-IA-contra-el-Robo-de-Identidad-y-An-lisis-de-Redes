@@ -108,7 +108,29 @@ def extraer_caracteristicas_url(url: str):
         subdominio_raro, acortador, tld_sospechoso # 7, 8, 9
     ]
 
-# Lista blanca de dominios seguros conocidos
+def analizar_y_registrar_url(url: str, modelo, conn):
+    url = url.strip()  # Elimina espacios accidentales
+    # Primero valida el formato de la URL
+    if not url or not (url.startswith("http://") or url.startswith("https://")):
+        return None, "URL inválida", ["Por favor, ingresa una URL válida comenzando con http:// o https://."]
+    parsed = urlparse(url)
+    dominio = parsed.netloc.lower()
+    # Ahora revisa la lista blanca
+    if any(dominio.endswith(dominio_conf) for dominio_conf in DOMINIOS_CONFIABLES):
+        prob_maliciosa = 0.0
+        clasificacion = "segura"
+        explicacion = [{"text": "✅ Dominio reconocido como seguro.", "tooltip": "Este dominio es ampliamente reconocido y confiable."}]
+        # Registrar en historial como segura
+        try:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO historial_urls (url, clasificacion, probabilidad, fecha) VALUES (?, ?, ?, ?)",
+                        (url, clasificacion, float(prob_maliciosa), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            conn.commit()
+        except sqlite3.Error as e:
+            st.error(f"Error al guardar en BD de URLs: {e}")
+        return prob_maliciosa, clasificacion, explicacion
+
+    # ...resto del código igual...# Lista blanca de dominios seguros conocidos
 DOMINIOS_CONFIABLES = [
     "youtube.com", "www.youtube.com", "google.com", "www.google.com",
     "facebook.com", "www.facebook.com", "instagram.com", "www.instagram.com",
